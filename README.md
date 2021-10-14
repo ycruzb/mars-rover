@@ -116,9 +116,9 @@ npm t
 
 ## Screenshots
 
-![Running the command line app](https://github.com/ycruzb/mars-rover/screenshots/Screen%20Shot%202021-10-14%20at%2011.57.21%20AM.png)
+![Running the command line app](https://raw.githubusercontent.com/ycruzb/mars-rover/main/screenshots/Screen%20Shot%202021-10-14%20at%2011.57.21%20AM.png)
 
-![Running tests](https://github.com/ycruzb/mars-rover/screenshots/Screen%20Shot%202021-10-14%20at%2011.57.47%20AM.png)
+![Running tests](https://github.com/ycruzb/mars-rover/blob/main/screenshots/Screen%20Shot%202021-10-14%20at%2011.57.47%20AM.png?raw=true)
 
 
 
