@@ -8,6 +8,25 @@ interface IRoverData {
   orientation: Orientation;
 }
 
+interface IgetNewPosition {
+  plateauWidth: number;
+  plateauHeight: number;
+  x: number;
+  y: number;
+  orientation: Orientation;
+  lastPositions: {
+    x: number;
+    y: number;
+  }[];
+}
+
+interface IisInsidePlateau {
+  plateauWidth: number;
+  plateauHeight: number;
+  x: number;
+  y: number;
+}
+
 interface IRoverInstructionProcess {
   plateauWidth: number;
   plateauHeight: number;
@@ -15,6 +34,10 @@ interface IRoverInstructionProcess {
   y: number;
   orientation: Orientation;
   instruction: "M" | "L" | "R";
+  lastPositions: {
+    x: number;
+    y: number;
+  }[];
 }
 
 interface IGetNewOrientation {
@@ -24,6 +47,15 @@ interface IGetNewOrientation {
 
 interface IInputLine {
   line: string;
+}
+
+interface IcheckLandedPositions {
+  lastPositions: {
+    x: number;
+    y: number;
+  }[];
+  x: number;
+  y: number;
 }
 
 export function getNewOrientation({
@@ -53,13 +85,34 @@ export function getNewOrientation({
   ] as Orientation;
 }
 
+export function isInsidePlateau({
+  plateauWidth,
+  plateauHeight,
+  x,
+  y,
+}: IisInsidePlateau) {
+  return x <= plateauWidth && x >= 0 && y >= 0 && y <= plateauHeight;
+}
+
+export function checkLandedPositions({
+  lastPositions,
+  x,
+  y,
+}: IcheckLandedPositions) {
+  return (
+    typeof lastPositions.find((item) => item.x === x && item.y === y) !==
+    "undefined"
+  );
+}
+
 export function getNewPosition({
   plateauWidth,
   plateauHeight,
   x,
   y,
   orientation,
-}: IRoverData) {
+  lastPositions,
+}: IgetNewPosition) {
   var defaultParams: IRoverData = {
     plateauWidth,
     plateauHeight,
@@ -69,49 +122,65 @@ export function getNewPosition({
   };
   if (orientation === "N") {
     if (y + 1 <= plateauHeight) {
-      return {
-        plateauWidth,
-        plateauHeight,
-        x,
-        y: y + 1,
-        orientation,
-      };
+      if (!checkLandedPositions({ lastPositions, x, y: y + 1 })) {
+        return {
+          plateauWidth,
+          plateauHeight,
+          x,
+          y: y + 1,
+          orientation,
+        };
+      } else {
+        return defaultParams;
+      }
     } else {
       return defaultParams;
     }
   } else if (orientation === "E") {
     if (x + 1 <= plateauWidth) {
-      return {
-        plateauWidth,
-        plateauHeight,
-        x: x + 1,
-        y,
-        orientation,
-      };
+      if (!checkLandedPositions({ lastPositions, x: x + 1, y })) {
+        return {
+          plateauWidth,
+          plateauHeight,
+          x: x + 1,
+          y,
+          orientation,
+        };
+      } else {
+        return defaultParams;
+      }
     } else {
       return defaultParams;
     }
   } else if (orientation === "S") {
     if (y - 1 >= 0) {
-      return {
-        plateauWidth,
-        plateauHeight,
-        x,
-        y: y - 1,
-        orientation,
-      };
+      if (!checkLandedPositions({ lastPositions, x, y: y - 1 })) {
+        return {
+          plateauWidth,
+          plateauHeight,
+          x,
+          y: y - 1,
+          orientation,
+        };
+      } else {
+        return defaultParams;
+      }
     } else {
       return defaultParams;
     }
   } else if (orientation === "W") {
     if (x - 1 >= 0) {
-      return {
-        plateauWidth,
-        plateauHeight,
-        x: x - 1,
-        y,
-        orientation,
-      };
+      if (!checkLandedPositions({ lastPositions, x: x - 1, y })) {
+        return {
+          plateauWidth,
+          plateauHeight,
+          x: x - 1,
+          y,
+          orientation,
+        };
+      } else {
+        return defaultParams;
+      }
     } else {
       return defaultParams;
     }
@@ -125,6 +194,7 @@ export function roverInstructionProcess({
   y,
   orientation,
   instruction,
+  lastPositions,
 }: IRoverInstructionProcess) {
   if (instruction === "L" || instruction === "R") {
     const newOrientation: Orientation = getNewOrientation({
@@ -139,7 +209,14 @@ export function roverInstructionProcess({
       orientation: newOrientation,
     };
   } else {
-    return getNewPosition({ plateauWidth, plateauHeight, x, y, orientation });
+    return getNewPosition({
+      plateauWidth,
+      plateauHeight,
+      x,
+      y,
+      orientation,
+      lastPositions,
+    });
   }
 }
 

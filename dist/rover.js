@@ -19,7 +19,14 @@ export function getNewOrientation({ orientation, instruction, }) {
     };
     return orientationGenerator[`${orientation}`][`${instruction}`];
 }
-export function getNewPosition({ plateauWidth, plateauHeight, x, y, orientation, }) {
+export function isInsidePlateau({ plateauWidth, plateauHeight, x, y, }) {
+    return x <= plateauWidth && x >= 0 && y >= 0 && y <= plateauHeight;
+}
+export function checkLandedPositions({ lastPositions, x, y, }) {
+    return (typeof lastPositions.find((item) => item.x === x && item.y === y) !==
+        "undefined");
+}
+export function getNewPosition({ plateauWidth, plateauHeight, x, y, orientation, lastPositions, }) {
     var defaultParams = {
         plateauWidth,
         plateauHeight,
@@ -29,13 +36,18 @@ export function getNewPosition({ plateauWidth, plateauHeight, x, y, orientation,
     };
     if (orientation === "N") {
         if (y + 1 <= plateauHeight) {
-            return {
-                plateauWidth,
-                plateauHeight,
-                x,
-                y: y + 1,
-                orientation,
-            };
+            if (!checkLandedPositions({ lastPositions, x, y: y + 1 })) {
+                return {
+                    plateauWidth,
+                    plateauHeight,
+                    x,
+                    y: y + 1,
+                    orientation,
+                };
+            }
+            else {
+                return defaultParams;
+            }
         }
         else {
             return defaultParams;
@@ -43,13 +55,18 @@ export function getNewPosition({ plateauWidth, plateauHeight, x, y, orientation,
     }
     else if (orientation === "E") {
         if (x + 1 <= plateauWidth) {
-            return {
-                plateauWidth,
-                plateauHeight,
-                x: x + 1,
-                y,
-                orientation,
-            };
+            if (!checkLandedPositions({ lastPositions, x: x + 1, y })) {
+                return {
+                    plateauWidth,
+                    plateauHeight,
+                    x: x + 1,
+                    y,
+                    orientation,
+                };
+            }
+            else {
+                return defaultParams;
+            }
         }
         else {
             return defaultParams;
@@ -57,13 +74,18 @@ export function getNewPosition({ plateauWidth, plateauHeight, x, y, orientation,
     }
     else if (orientation === "S") {
         if (y - 1 >= 0) {
-            return {
-                plateauWidth,
-                plateauHeight,
-                x,
-                y: y - 1,
-                orientation,
-            };
+            if (!checkLandedPositions({ lastPositions, x, y: y - 1 })) {
+                return {
+                    plateauWidth,
+                    plateauHeight,
+                    x,
+                    y: y - 1,
+                    orientation,
+                };
+            }
+            else {
+                return defaultParams;
+            }
         }
         else {
             return defaultParams;
@@ -71,20 +93,25 @@ export function getNewPosition({ plateauWidth, plateauHeight, x, y, orientation,
     }
     else if (orientation === "W") {
         if (x - 1 >= 0) {
-            return {
-                plateauWidth,
-                plateauHeight,
-                x: x - 1,
-                y,
-                orientation,
-            };
+            if (!checkLandedPositions({ lastPositions, x: x - 1, y })) {
+                return {
+                    plateauWidth,
+                    plateauHeight,
+                    x: x - 1,
+                    y,
+                    orientation,
+                };
+            }
+            else {
+                return defaultParams;
+            }
         }
         else {
             return defaultParams;
         }
     }
 }
-export function roverInstructionProcess({ plateauWidth, plateauHeight, x, y, orientation, instruction, }) {
+export function roverInstructionProcess({ plateauWidth, plateauHeight, x, y, orientation, instruction, lastPositions, }) {
     if (instruction === "L" || instruction === "R") {
         const newOrientation = getNewOrientation({
             orientation,
@@ -99,7 +126,14 @@ export function roverInstructionProcess({ plateauWidth, plateauHeight, x, y, ori
         };
     }
     else {
-        return getNewPosition({ plateauWidth, plateauHeight, x, y, orientation });
+        return getNewPosition({
+            plateauWidth,
+            plateauHeight,
+            x,
+            y,
+            orientation,
+            lastPositions,
+        });
     }
 }
 export function getPlateauDimensions({ line }) {
